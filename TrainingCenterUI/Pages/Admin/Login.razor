@@ -1,0 +1,61 @@
+﻿@page "/login"
+@using TrainingCenterUI.Services
+@inject AuthenticationService AuthenticationService
+@inject NavigationManager NavigationManager
+@inject AdminService AdminService
+
+<PageTitle>Login</PageTitle>
+
+<h3>Login</h3>
+
+@if (showError)
+{
+    <div class="alert alert-danger" role="alert">
+        Invalid login attempt.
+    </div>
+}
+
+<EditForm Model="@loginModel" OnValidSubmit="HandleLogin">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="email" class="form-label">Email:</label>
+        <InputText id="email" class="form-control" @bind-Value="loginModel.Email" />
+    </div>
+    <div class="mb-3">
+        <label for="password" class="form-label">Password:</label>
+        <InputText id="password" type="password" class="form-control" @bind-Value="loginModel.Password" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Login</button>
+</EditForm>
+
+@code {
+    private LoginModel loginModel = new LoginModel();
+    private bool showError = false;
+
+    private async Task HandleLogin()
+    {
+       try{
+        bool log = await AuthenticationService.Authenticate(loginModel.Email, loginModel.Password, AdminService
+);
+        if (log)
+        {
+            NavigationManager.NavigateTo("/", forceLoad: true);
+        }
+        else
+        {
+            showError = true; 
+        }
+       }catch(Exception ex){
+           showError = true;
+       };
+    }
+
+    public class LoginModel
+    {
+        public string Email { get; set; }
+        public string Password { get; set; }
+    }
+}

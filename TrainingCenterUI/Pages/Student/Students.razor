@@ -1,0 +1,99 @@
+﻿@page "/students"
+@using TrainingCenterUI.DTO
+@using TrainingCenterUI.Services
+@inject StudentService StudentService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Our Students</PageTitle>
+
+<div class="mt-2">
+    <a class="btn btn-primary" role="button" href="/editstudent">New Student</a>
+</div>
+
+@if (students != null)
+{
+    <table class="table table-striped table-bordered table-hover mt-3">
+        <thead class="table-dark">
+        <th>Id</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Goverorate</th>
+        <th>BirthDate</th>
+        <th>Actions</th>
+        </thead>
+        <tbody>
+            @foreach (var student in students)
+            {
+                <tr>
+                    <td>@student.Id</td>
+                    <td><a href="/studentcourses/@student.Id">@student.Name</a></td>
+                    <td>@student.Email</td>
+                    <td>@student.Governorate</td>
+                    <td>@student.BirthDate.ToShortDateString()</td>
+                    <td>
+                        <a class="btn btn-primary me-2" role="button" href="@EditStudentUrl(student.Id)">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <button class="btn btn-danger" @onclick="() => ShowDeleteConfirmation(student)">
+                            <i class="bi bi-x-lg"></i> Delete
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<!-- Delete Confirmation Modal -->
+<div class="modal" tabindex="-1" style="display:@(deleteConfirmationVisible ? "block" : "none");">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" @onclick="HideDeleteConfirmation"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete '@selectedStudent?.Name'?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" @onclick="HideDeleteConfirmation">Cancel</button>
+                <button class="btn btn-danger" @onclick="ConfirmDelete">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<StudentDTO>? students;
+    private StudentDTO? selectedStudent;
+    private bool deleteConfirmationVisible;
+
+    protected override async Task OnInitializedAsync()
+    {
+        students = await StudentService.GetStudentsAsync();
+    }
+
+    private void ShowDeleteConfirmation(StudentDTO student)
+    {
+        selectedStudent = student;
+        deleteConfirmationVisible = true;
+    }
+
+    private void HideDeleteConfirmation()
+    {
+        deleteConfirmationVisible = false;
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (selectedStudent != null)
+        {
+            await StudentService.DeleteStudentAsync(selectedStudent.Id);
+            students.Remove(selectedStudent);
+            deleteConfirmationVisible = false;
+            StateHasChanged();
+        }
+    }
+
+    private static string EditStudentUrl(int id) => $"/editstudent/{id}";
+}

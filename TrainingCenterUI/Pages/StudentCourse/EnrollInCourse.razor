@@ -1,0 +1,57 @@
+﻿@page "/enroll/{studentId:int}"
+@using TrainingCenterUI.DTO
+@using TrainingCenterUI.Services
+@inject CourseService CourseService
+@inject StudentCoursesService StudentCoursesService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Enroll in Course</PageTitle>
+
+@if (availableCourses == null)
+{
+    <p><em>Loading courses...</em></p>
+}
+else
+{
+    <select @bind="selectedCourseId">
+        <option value="">Select a course</option>
+        @foreach (var course in availableCourses)
+        {
+            <option value="@course.Id">@course.Name</option>
+        }
+    </select>
+    <button class="btn btn-primary" @onclick="Enroll">Enroll</button>
+}
+
+@code {
+    [Parameter]
+    public int StudentId { get; set; }
+
+    private List<CourseDTO>? availableCourses;
+    private int selectedCourseId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        availableCourses = await CourseService.GetCoursesAsync();
+    }
+
+    private async Task Enroll()
+    {
+        if (selectedCourseId == 0)
+        {
+            return; // Show an error or a message indicating to select a course.
+        }
+
+        var newEnrollment = new StudentCourseDTO
+            {
+                StudentId = StudentId,
+                CourseId = selectedCourseId,
+                RegistrationDate = DateTime.Now,
+                Grade = 0,
+                Status = "Enrolled"
+            };
+
+        await StudentCoursesService.AddStudentCourseAsync(StudentId, newEnrollment);
+        NavigationManager.NavigateTo($"/studentcourses/{StudentId}");
+    }
+}

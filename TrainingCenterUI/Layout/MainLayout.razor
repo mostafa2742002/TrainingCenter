@@ -1,0 +1,34 @@
+﻿@using TrainingCenterUI.Services
+@inherits LayoutComponentBase
+@inject AuthenticationService AuthenticationService
+@inject NavigationManager NavigationManager
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthenticationService.Initialize();
+        if (!AuthenticationService.IsAuthenticated)
+        {
+            NavigationManager.NavigateTo("/login");
+        }
+    }
+
+    private void Logout()
+    {
+        AuthenticationService.Logout();
+        NavigationManager.NavigateTo("/login");
+    }
+}
+
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>

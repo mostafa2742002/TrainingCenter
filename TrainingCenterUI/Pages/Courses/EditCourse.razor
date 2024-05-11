@@ -1,0 +1,101 @@
+﻿@page "/editcourse"
+@page "/editcourse/{id:int}"
+@using TrainingCenterUI.DTO
+@using TrainingCenterUI.Services
+@inject NavigationManager NavigationManager
+@inject CourseService CourseService
+
+<PageTitle>@title</PageTitle>
+<h3>@title</h3>
+
+@if (course is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-6">
+            <EditForm Model="@course" OnValidSubmit="HandleSubmitAsync">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name:</label>
+                    <InputText id="name" @bind-Value="course.Name" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="startDate" class="form-label">Start Date:</label>
+                    <InputDate id="startDate" @bind-Value="course.StartDate" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="endDate" class="form-label">End Date:</label>
+                    <InputDate id="endDate" @bind-Value="course.EndDate" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="capacity" class="form-label">Capacity:</label>
+                    <InputNumber id="capacity" @bind-Value="course.Capacity" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="cost" class="form-label">Cost:</label>
+                    <InputNumber id="cost" @bind-Value="course.Cost" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="status" class="form-label">Status:</label>
+                    <InputText id="status" @bind-Value="course.Status" class="form-control" />
+                </div>
+
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a class="btn btn-secondary" href="/courses">Cancel</a>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    private CourseDTO? course;
+    private string title = "Edit Course";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id.HasValue)
+        {
+            course = await CourseService.GetCourseAsync(Id.Value);
+            if (course != null)
+            {
+                title = $"Edit {course.Name}";
+            }
+        }
+        else
+        {
+            // Initialize a new course for creation
+            course = new CourseDTO
+                {
+                    Name = "",
+                    StartDate = DateTime.Today,
+                    EndDate = DateTime.Today.AddDays(1),
+                    Capacity = 1,
+                    Cost = 0m,
+                    Status = "New"
+                };
+            title = "New Course";
+        }
+    }
+
+    private async Task HandleSubmitAsync()
+    {
+        if (Id.HasValue)
+        {
+            await CourseService.UpdateCourseAsync(Id.Value, course);
+        }
+        else
+        {
+            await CourseService.AddCourseAsync(course);
+        }
+
+        NavigationManager.NavigateTo("/courses");
+    }
+}

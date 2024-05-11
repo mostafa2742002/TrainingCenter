@@ -1,0 +1,90 @@
+﻿@page "/editstudent"
+@page "/editstudent/{id:int}"
+@using TrainingCenterUI.DTO
+@using TrainingCenterUI.Services
+@inject NavigationManager NavigationManager
+@inject StudentService StudentService
+
+<PageTitle>@title</PageTitle>
+<h3>@title</h3>
+
+@if (student is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-6">
+            <EditForm Model="@student" OnValidSubmit="HandleSubmitAsync">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name:</label>
+                    <InputText id="name" @bind-Value="student.Name" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="Email" class="form-label">Email:</label>
+                    <InputText id="Email" @bind-Value="student.Email" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="Governorate" class="form-label">Governorate :</label>
+                    <InputText id="Governorate" @bind-Value="student.Governorate" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="BirthDate" class="form-label">BirthDate:</label>
+                    <InputDate id="BirthDate" @bind-Value="student.BirthDate" class="form-control" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a class="btn btn-secondary" href="/students">Cancel</a>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    private StudentDTO? student;
+    private string title = "Edit Student";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id.HasValue)
+        {
+            student = await StudentService.GetStudentAsync(Id.Value);
+            if (student != null)
+            {
+                title = $"Edit {student.Name}";
+            }
+        }
+        else
+        {
+            // Initialize a new student for creation
+            student = new StudentDTO
+                {
+                    Name = "",
+                    Email = "",
+                    Governorate = "",
+                    BirthDate = DateTime.Today
+                };
+            title = "New Student";
+        }
+    }
+
+    private async Task HandleSubmitAsync()
+    {
+        if (Id.HasValue)
+        {
+            await StudentService.UpdateStudentAsync(Id.Value, student);
+        }
+        else
+        {
+            await StudentService.AddStudentAsync(student);
+        }
+
+        NavigationManager.NavigateTo("/students");
+    }
+}
