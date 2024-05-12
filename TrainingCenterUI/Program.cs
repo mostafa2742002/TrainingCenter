@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.JSInterop;
+using System.Net.Http;
 using TrainingCenterUI;
 using TrainingCenterUI.Services;
 
@@ -16,24 +17,17 @@ builder.Services.AddScoped<StudentService>();
 builder.Services.AddScoped<StudentCoursesService>();
 builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<AuthenticationService>();
-builder.Services.AddScoped<HttpClient>(sp =>
+builder.Services.AddTransient<AuthMessageHandler>();
+
+builder.Services.AddHttpClient("AuthorizedClient", client =>
 {
-    var navigationManager = sp.GetRequiredService<NavigationManager>();
-    var jsRuntime = sp.GetRequiredService<IJSRuntime>();
-    var authToken = jsRuntime.InvokeAsync<string>("localStorage.getItem", "authToken").Result;
+    client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
+})
+.AddHttpMessageHandler<AuthMessageHandler>();  // Append the auth token handler
 
-    var httpClient = new HttpClient
-    {
-        BaseAddress = new Uri("http://localhost:5276")
-    };
+builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("AuthorizedClient"));
 
-    if (!string.IsNullOrWhiteSpace(authToken))
-    {
-        httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
-    }
 
-    return httpClient;
-});
 
 
 await builder.Build().RunAsync();

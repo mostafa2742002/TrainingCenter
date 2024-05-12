@@ -5,11 +5,12 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Configuration; // Add this to access IConfiguration
-
+using Microsoft.AspNetCore.Authorization;
 namespace TrainingCenter.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class AdminController : ControllerBase
     {
         private readonly string adminEmail = "Admin@Admin.com";

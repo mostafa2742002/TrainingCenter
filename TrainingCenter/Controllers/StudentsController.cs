@@ -5,11 +5,12 @@ using System.Globalization;
 using TrainingCenter.DTO;
 using TrainingCenter.interfaces;
 using TrainingCenter.Models;
-
+using Microsoft.AspNetCore.Authorization;
 namespace TrainingCenter.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class StudentsController : ControllerBase
     {
         private readonly IStudentRepository _studentRepository;

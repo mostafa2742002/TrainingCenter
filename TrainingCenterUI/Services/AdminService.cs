@@ -16,7 +16,7 @@ namespace TrainingCenterUI.Services
 
         public async Task<bool> Login(string email, string password)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/admin/login", new { Email = email, Password = password });
+            var response = await _httpClient.PostAsJsonAsync("/login", new { Email = email, Password = password });
             if (response.IsSuccessStatusCode)
             {
                 var tokenResponse = await response.Content.ReadFromJsonAsync<TokenResponse>();

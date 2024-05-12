@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Json;
+using System.Text.Json;
 using TrainingCenterUI.DTO;
 namespace TrainingCenterUI.Services
 {
@@ -13,8 +14,28 @@ namespace TrainingCenterUI.Services
 
         public async Task<List<CourseDTO>> GetCoursesAsync()
         {
-            return await _httpClient.GetFromJsonAsync<List<CourseDTO>>("api/courses");
+            var response = await _httpClient.GetAsync("api/courses");
+            if (response.IsSuccessStatusCode)
+            {
+                try
+                {
+                    return await response.Content.ReadFromJsonAsync<List<CourseDTO>>();
+                }
+                catch (JsonException ex)
+                {
+                    // Log the response content to understand what is being returned
+                    var responseBody = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Invalid JSON received: {responseBody}");
+                    throw new InvalidOperationException("Received invalid JSON", ex);
+                }
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"Error fetching courses: {response.StatusCode} - {errorContent}");
+            }
         }
+
 
         public async Task<CourseDTO> GetCourseAsync(int id)
         {
