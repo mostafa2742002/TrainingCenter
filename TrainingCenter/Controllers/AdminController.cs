@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authorization;
+using TrainingCenter.DTO;
 
 namespace TrainingCenter.Controllers
 {
@@ -23,8 +24,13 @@ namespace TrainingCenter.Controllers
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginRequest loginRequest)
+        public IActionResult Login([FromBody] LoginDTO loginRequest)
         {
+            if (loginRequest == null)
+            {
+                return BadRequest("Login request is null.");
+            }
+
             if (loginRequest.Email != adminEmail || loginRequest.Password != adminPassword)
             {
                 return Unauthorized();
@@ -32,9 +38,9 @@ namespace TrainingCenter.Controllers
 
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, loginRequest.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
+        new Claim(JwtRegisteredClaimNames.Sub, loginRequest.Email),
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+    };
 
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -47,17 +53,14 @@ namespace TrainingCenter.Controllers
                 signingCredentials: credentials
             );
 
-            return Ok(new
+            var response = new LoginResponse
             {
-                token = new JwtSecurityTokenHandler().WriteToken(token),
-                expiration = token.ValidTo
-            });
-        }
-    }
+                Token = new JwtSecurityTokenHandler().WriteToken(token),
+                Expiration = token.ValidTo
+            };
 
-    public class LoginRequest
-    {
-        public string Email { get; set; }
-        public string Password { get; set; }
+            return Ok(response);
+        }
+
     }
 }
