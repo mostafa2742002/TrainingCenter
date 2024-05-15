@@ -35,11 +35,9 @@
                     <td class="text-end">@course.Cost.ToString("C2")</td>
                     <td>@course.Status</td>
                     <td>
-                
-                            <a class="btn btn-primary me-2" role="button" href="@courseUrl(course.Id)">
-                                <i class="bi bi-pencil"></i>
-                            </a>
-                
+                        <a class="btn btn-primary me-2" role="button" href="@courseUrl(course.Id)">
+                            <i class="bi bi-pencil"></i>
+                        </a>
                         <button class="btn btn-danger" @onclick="() => ShowDeleteConfirmation(course)">
                             <i class="bi bi-x-lg"></i> Delete
                         </button>

@@ -1,7 +1,7 @@
 ﻿using TrainingCenter.Data;
 using TrainingCenter.interfaces;
 using TrainingCenter.Models;
-
+using Microsoft.EntityFrameworkCore;
 namespace TrainingCenter.Repository
 {
     public class StudentRepository : IStudentRepository
@@ -15,67 +15,66 @@ namespace TrainingCenter.Repository
 
         public List<Student> GetStudents()
         {
-            return [.. _context.Set<Student>()];
+            return _context.Students.ToList();
         }
 
         public Student GetStudent(int id)
         {
-            var studentFromDB = _context.Set<Student>().Find(id) ?? throw new Exception("Student not found");
-            return studentFromDB;
+            return _context.Students.Find(id);
         }
 
         public void AddStudent(Student student)
         {
-            _context.Set<Student>().Add(student);
+            _context.Students.Add(student);
             _context.SaveChanges();
         }
 
         public void UpdateStudent(Student student)
         {
-            _context.Set<Student>().Update(student);
+            _context.Students.Update(student);
             _context.SaveChanges();
         }
 
         public void DeleteStudent(int id)
         {
-            var studentFromDB = _context.Set<Student>().Find(id) ?? throw new Exception("Student not found");
-
-            _context.Set<Student>().Remove(studentFromDB);
-            _context.SaveChanges();
+            var student = _context.Students.Find(id);
+            if (student != null)
+            {
+                _context.Students.Remove(student);
+                _context.SaveChanges();
+            }
         }
 
         public List<StudentCourse> GetStudentCourses(int studentId)
         {
-            return [.. _context.Set<StudentCourse>().Where(sc => sc.StudentId == studentId)];
+            return _context.StudentCourses.Where(sc => sc.StudentId == studentId).ToList();
         }
 
         public StudentCourse GetStudentCourse(int studentId, int courseId)
         {
-            return _context.Set<StudentCourse>()
-                .FirstOrDefault(sc => sc.StudentId == studentId && sc.CourseId == courseId);
+            return _context.StudentCourses.FirstOrDefault(sc => sc.StudentId == studentId && sc.CourseId == courseId);
         }
 
         public void AddStudentCourse(StudentCourse studentCourse)
         {
-            _context.Set<StudentCourse>().Add(studentCourse);
+            _context.StudentCourses.Add(studentCourse);
             _context.SaveChanges();
         }
 
         public void UpdateStudentCourse(StudentCourse studentCourse)
         {
-            _context.Set<StudentCourse>().Update(studentCourse);
+            _context.StudentCourses.Update(studentCourse);
             _context.SaveChanges();
         }
 
         public void DeleteStudentCourse(int studentId, int courseId)
         {
-            var studentCourse = _context.Set<StudentCourse>()
-                .FirstOrDefault(sc => sc.StudentId == studentId && sc.CourseId == courseId)
-                ?? throw new Exception("Student course not found");
-            
-            _context.Set<StudentCourse>().Remove(studentCourse);
-            _context.SaveChanges();
+            var studentCourse = _context.StudentCourses.FirstOrDefault(sc => sc.StudentId == studentId && sc.CourseId == courseId);
+            if (studentCourse != null)
+            {
+                _context.StudentCourses.Remove(studentCourse);
+                _context.SaveChanges();
+            }
         }
-
     }
 }

@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TrainingCenter.DTO;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.Extensions.Configuration; // Add this to access IConfiguration
+using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authorization;
+
 namespace TrainingCenter.Controllers
 {
     [Route("api/[controller]")]
@@ -15,28 +15,24 @@ namespace TrainingCenter.Controllers
     {
         private readonly string adminEmail = "Admin@Admin.com";
         private readonly string adminPassword = "Admin@123";
-        private readonly IConfiguration _configuration; // Use IConfiguration instead of WebApplicationBuilder
+        private readonly IConfiguration _configuration;
 
-        // Inject IConfiguration directly
         public AdminController(IConfiguration configuration)
         {
             _configuration = configuration;
         }
 
-        [HttpPost("/login")]
-        public IActionResult Login([FromBody] LoginDTO loginDTO)
+        [HttpPost("login")]
+        public IActionResult Login([FromBody] LoginRequest loginRequest)
         {
-            string email = loginDTO.Email;
-            string password = loginDTO.Password;
-
-            if (email != adminEmail || password != adminPassword) // Note: Use || instead of &&
+            if (loginRequest.Email != adminEmail || loginRequest.Password != adminPassword)
             {
                 return Unauthorized();
             }
 
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, email),
+                new Claim(JwtRegisteredClaimNames.Sub, loginRequest.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
@@ -57,5 +53,11 @@ namespace TrainingCenter.Controllers
                 expiration = token.ValidTo
             });
         }
+    }
+
+    public class LoginRequest
+    {
+        public string Email { get; set; }
+        public string Password { get; set; }
     }
 }

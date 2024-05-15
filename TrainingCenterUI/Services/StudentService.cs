@@ -1,5 +1,6 @@
-﻿using TrainingCenterUI.DTO;
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
+using TrainingCenterUI.DTO;
+
 namespace TrainingCenterUI.Services
 {
     public class StudentService
@@ -10,7 +11,7 @@ namespace TrainingCenterUI.Services
         {
             _httpClient = httpClient;
         }
-        
+
         public async Task<List<StudentDTO>> GetStudentsAsync()
         {
             return await _httpClient.GetFromJsonAsync<List<StudentDTO>>("api/students") ?? new List<StudentDTO>();
@@ -35,6 +36,5 @@ namespace TrainingCenterUI.Services
         {
             await _httpClient.DeleteAsync($"api/students/{id}");
         }
-
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
 using TrainingCenterUI.DTO;
+
 namespace TrainingCenterUI.Services
 {
     public class CourseService
@@ -23,7 +24,6 @@ namespace TrainingCenterUI.Services
                 }
                 catch (JsonException ex)
                 {
-                    // Log the response content to understand what is being returned
                     var responseBody = await response.Content.ReadAsStringAsync();
                     Console.WriteLine($"Invalid JSON received: {responseBody}");
                     throw new InvalidOperationException("Received invalid JSON", ex);
@@ -35,7 +35,6 @@ namespace TrainingCenterUI.Services
                 throw new HttpRequestException($"Error fetching courses: {response.StatusCode} - {errorContent}");
             }
         }
-
 
         public async Task<CourseDTO> GetCourseAsync(int id)
         {

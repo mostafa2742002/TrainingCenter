@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using System.Globalization;
 using TrainingCenter.DTO;
 using TrainingCenter.interfaces;
 using TrainingCenter.Models;
 using Microsoft.AspNetCore.Authorization;
+using TrainingCenter.interfaces;
 
 namespace TrainingCenter.Controllers
 {
@@ -51,7 +51,6 @@ namespace TrainingCenter.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult AddCourse([FromBody] CourseDTO courseDto)
         {
-            // validation
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             if (_coursesRepository.GetCourses().Any(c => c.Name == courseDto.Name))
@@ -60,14 +59,9 @@ namespace TrainingCenter.Controllers
             if (courseDto.StartDate >= courseDto.EndDate)
                 return BadRequest("Start date must be before end date.");
 
-            // processing
-
             var course = _mapper.Map<Course>(courseDto);
             _coursesRepository.AddCourse(course);
 
-
-
-            // response
             return CreatedAtAction(nameof(GetCourse), new { id = course.Id }, course);
         }
 

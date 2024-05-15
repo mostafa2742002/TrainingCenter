@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.JSInterop;
-using System.Threading.Tasks;
+
 namespace TrainingCenterUI.Services
 {
     public class AuthenticationService
@@ -19,14 +19,15 @@ namespace TrainingCenterUI.Services
             {
                 return false;
             }
-            Boolean loginResponse = await adminService.Login(email, password);
+
+            bool loginResponse = await adminService.Login(email, password);
             if (loginResponse)
             {
                 IsAuthenticated = true;
                 await _jsRuntime.InvokeVoidAsync("localStorage.setItem", "isAuthenticated", "true");
                 return true;
             }
-     
+
             return IsAuthenticated;
         }
 
@@ -40,6 +41,7 @@ namespace TrainingCenterUI.Services
         {
             IsAuthenticated = false;
             await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", "isAuthenticated");
+            await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", "authToken");
         }
     }
 }

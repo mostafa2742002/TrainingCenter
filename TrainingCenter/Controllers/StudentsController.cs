@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Globalization;
 using TrainingCenter.DTO;
 using TrainingCenter.interfaces;
 using TrainingCenter.Models;
 using Microsoft.AspNetCore.Authorization;
+using TrainingCenter.interfaces;
+
 namespace TrainingCenter.Controllers
 {
     [Route("api/[controller]")]
@@ -23,7 +23,6 @@ namespace TrainingCenter.Controllers
             _mapper = mapper;
             _coursesRepository = coursesRepository;
         }
-        // GetStudents, GetStudent, AddStudent, UpdateStudent, DeleteStudent, GetStudentCourses, GetStudentCourse, AddStudentCourse, UpdateStudentCourse, DeleteStudentCourse
 
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(IEnumerable<StudentDTO>))]
@@ -94,13 +93,12 @@ namespace TrainingCenter.Controllers
         [ProducesResponseType(200, Type = typeof(IEnumerable<StudentCourseDTO>))]
         public IActionResult GetStudentCourses(int studentId)
         {
-            List<StudentCourse> studentcourses = _studentRepository.GetStudentCourses(studentId);
-            if (studentcourses  == null || !studentcourses.Any())
+            List<StudentCourse> studentCourses = _studentRepository.GetStudentCourses(studentId);
+            if (studentCourses == null || !studentCourses.Any())
                 return Ok(new List<StudentCourse>());
 
-            var studentcourseDtos = _mapper.Map<List<StudentCourseDTO>>(studentcourses);
-
-            return Ok(studentcourseDtos);
+            var studentCourseDtos = _mapper.Map<List<StudentCourseDTO>>(studentCourses);
+            return Ok(studentCourseDtos);
         }
 
         [HttpGet("{studentId}/courses/{courseId}")]
@@ -110,54 +108,53 @@ namespace TrainingCenter.Controllers
             var course = _studentRepository.GetStudentCourse(studentId, courseId);
             if (course == null)
                 return Ok(null);
-            var courseDto = _mapper.Map<CourseDTO>(course);
+            var courseDto = _mapper.Map<StudentCourseDTO>(course);
             return Ok(courseDto);
         }
 
         [HttpPost("{studentId}/courses")]
         [ProducesResponseType(201, Type = typeof(StudentCourseDTO))]
-        public IActionResult AddStudentCourse(int studentId,int courseId)
+        public IActionResult AddStudentCourse(int studentId, [FromBody] StudentCourseDTO studentCourseDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var course = _coursesRepository.GetCourse(courseId);
+            var course = _coursesRepository.GetCourse(studentCourseDto.CourseId);
             var student = _studentRepository.GetStudent(studentId);
             if (course == null)
                 return NotFound("Course not found.");
             if (student == null)
                 return NotFound("Student not found.");
-    
-            
-            _studentRepository.AddStudentCourse(
-                new StudentCourse
-                {
-                    StudentId = studentId,
-                    CourseId = courseId,
-                    Course = course,
-                    Student = student,
-                    RegistrationDate = DateTime.Now,
-                    Grade = 0,
-                    Status = "Active"
-                }
-            );
 
-            return CreatedAtAction(nameof(GetStudentCourse), new { studentId = studentId, courseId = courseId }, new StudentCourseDTO());
+            var studentCourse = new StudentCourse
+            {
+                StudentId = studentId,
+                CourseId = studentCourseDto.CourseId,
+                Course = course,
+                Student = student,
+                RegistrationDate = DateTime.Now,
+                Grade = 0,
+                Status = "Active"
+            };
+
+            _studentRepository.AddStudentCourse(studentCourse);
+
+            return CreatedAtAction(nameof(GetStudentCourse), new { studentId = studentId, courseId = studentCourse.CourseId }, studentCourseDto);
         }
 
         [HttpPut("{studentId}/courses/{courseId}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult UpdateStudentCourse(int studentId, int courseId, [FromBody] CourseDTO courseDto)
+        public IActionResult UpdateStudentCourse(int studentId, int courseId, [FromBody] StudentCourseDTO studentCourseDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            var course = _studentRepository.GetStudentCourse(studentId, courseId);
-            if (course == null)
-                return NotFound("Course not found.");
-            _mapper.Map(courseDto, course);
-            _studentRepository.UpdateStudentCourse(course);
+            var studentCourse = _studentRepository.GetStudentCourse(studentId, courseId);
+            if (studentCourse == null)
+                return NotFound("Student course not found.");
+            _mapper.Map(studentCourseDto, studentCourse);
+            _studentRepository.UpdateStudentCourse(studentCourse);
             return NoContent();
         }
 
@@ -166,12 +163,11 @@ namespace TrainingCenter.Controllers
         [ProducesResponseType(404)]
         public IActionResult DeleteStudentCourse(int studentId, int courseId)
         {
-            var course = _studentRepository.GetStudentCourse(studentId, courseId);
-            if (course == null)
-                return NotFound("Course not found.");
+            var studentCourse = _studentRepository.GetStudentCourse(studentId, courseId);
+            if (studentCourse == null)
+                return NotFound("Student course not found.");
             _studentRepository.DeleteStudentCourse(studentId, courseId);
             return NoContent();
         }
-
     }
 }
