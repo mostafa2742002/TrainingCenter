@@ -7,15 +7,16 @@
     protected override async Task OnInitializedAsync()
     {
         await AuthenticationService.Initialize();
-        if (!AuthenticationService.IsAuthenticated)
+        var token = await AuthenticationService.GetTokenAsync(); // Retrieve the token from local storage
+        if (!AuthenticationService.IsAuthenticated || AuthenticationService.IsTokenExpired(token))
         {
-            NavigationManager.NavigateTo("/login");
+            await Logout();
         }
     }
 
-    private void Logout()
+    private async Task Logout()
     {
-        AuthenticationService.Logout();
+        await AuthenticationService.Logout();
         NavigationManager.NavigateTo("/login");
     }
 }

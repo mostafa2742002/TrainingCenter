@@ -1,6 +1,6 @@
 ﻿using System.Net.Http.Json;
 using Microsoft.JSInterop;
-using TrainingCenterUI.DTO;
+using System.Threading.Tasks;
 
 namespace TrainingCenterUI.Services
 {
@@ -15,17 +15,17 @@ namespace TrainingCenterUI.Services
             _jsRuntime = jsRuntime;
         }
 
+        public async Task<bool> ValidateToken(string token)
+        {
+            var response = await _httpClient.GetAsync($"api/admin/validateToken?token={token}");
+            return response.IsSuccessStatusCode;
+        }
+
         public async Task<bool> Login(string email, string password)
         {
             var loginRequest = new LoginRequest { Email = email, Password = password };
             var response = await _httpClient.PostAsJsonAsync("api/admin/login", loginRequest);
-            Console.WriteLine(response.StatusCode);
-            Console.WriteLine(response.Content);
-            Console.WriteLine(response.Headers);
-            Console.WriteLine(response.RequestMessage);
-            Console.WriteLine(response.ReasonPhrase);
-            Console.WriteLine(response.RequestMessage);
- 
+
             if (response.IsSuccessStatusCode)
             {
                 var tokenResponse = await response.Content.ReadFromJsonAsync<TokenResponse>();

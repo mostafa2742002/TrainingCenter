@@ -37,19 +37,12 @@
 
     private async Task HandleLogin()
     {
-        try
+        bool log = await AuthenticationService.Authenticate(loginModel.Email, loginModel.Password);
+        if (log)
         {
-            bool log = await AuthenticationService.Authenticate(loginModel.Email, loginModel.Password, AdminService);
-            if (log)
-            {
-                NavigationManager.NavigateTo("/", forceLoad: true);
-            }
-            else
-            {
-                showError = true;
-            }
+            NavigationManager.NavigateTo("/", forceLoad: true);
         }
-        catch (Exception ex)
+        else
         {
             showError = true;
         }

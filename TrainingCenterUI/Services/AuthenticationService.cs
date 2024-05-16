@@ -1,26 +1,30 @@
-﻿using System.Threading.Tasks;
-using Microsoft.JSInterop;
+﻿using Microsoft.JSInterop;
+using System.IdentityModel.Tokens.Jwt;
+using System.Threading.Tasks;
 
 namespace TrainingCenterUI.Services
 {
     public class AuthenticationService
     {
         private readonly IJSRuntime _jsRuntime;
-        public bool IsAuthenticated { get; private set; }
+        private readonly AdminService _adminService;
 
-        public AuthenticationService(IJSRuntime jsRuntime)
+        public AuthenticationService(IJSRuntime jsRuntime, AdminService adminService)
         {
             _jsRuntime = jsRuntime;
+            _adminService = adminService;
         }
 
-        public async Task<bool> Authenticate(string email, string password, AdminService adminService)
+        public bool IsAuthenticated { get; private set; }
+
+        public async Task<bool> Authenticate(string email, string password)
         {
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
             {
                 return false;
             }
 
-            bool loginResponse = await adminService.Login(email, password);
+            bool loginResponse = await _adminService.Login(email, password);
             if (loginResponse)
             {
                 IsAuthenticated = true;
@@ -33,8 +37,8 @@ namespace TrainingCenterUI.Services
 
         public async Task Initialize()
         {
-            var isAuthenticated = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "isAuthenticated");
-            IsAuthenticated = isAuthenticated == "true";
+            var token = await GetTokenAsync();
+            IsAuthenticated = !string.IsNullOrEmpty(token) && !IsTokenExpired(token);
         }
 
         public async Task Logout()
@@ -42,6 +46,17 @@ namespace TrainingCenterUI.Services
             IsAuthenticated = false;
             await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", "isAuthenticated");
             await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", "authToken");
+        }
+
+        public bool IsTokenExpired(string token)
+        {
+            var jwtToken = new JwtSecurityTokenHandler().ReadToken(token) as JwtSecurityToken;
+            return jwtToken == null || jwtToken.ValidTo < DateTime.UtcNow;
+        }
+
+        public async Task<string> GetTokenAsync()
+        {
+            return await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
         }
     }
 }
