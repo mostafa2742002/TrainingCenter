@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -72,5 +73,67 @@ namespace TrainingCenterTests.AdminTest
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             Assert.Equal("Login request is null.", badRequestResult.Value);
         }
+
+        [Fact]
+        public void ValidateToken_ValidToken_ReturnsOk()
+        {
+            // Arrange
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes("your-secret-key-here");
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new System.Security.Claims.ClaimsIdentity(new[] { new System.Security.Claims.Claim("sub", "test") }),
+                Expires = DateTime.UtcNow.AddMinutes(30),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+                Issuer = "your-issuer",
+                Audience = "your-audience"
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var validToken = tokenHandler.WriteToken(token);
+
+            // Act
+            var result = _controller.ValidateToken(validToken);
+
+            // Assert
+            Assert.IsType<OkResult>(result);
+        }
+
+        [Fact]
+        public void ValidateToken_InvalidToken_ReturnsUnauthorized()
+        {
+            // Arrange
+            var invalidToken = "invalid-token";
+
+            // Act
+            var result = _controller.ValidateToken(invalidToken);
+
+            // Assert
+            Assert.IsType<UnauthorizedResult>(result);
+        }
+
+        [Fact]
+        public void ValidateToken_ExpiredToken_ReturnsUnauthorized()
+        {
+            // Arrange
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes("your-secret-key-here");
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new System.Security.Claims.ClaimsIdentity(new[] { new System.Security.Claims.Claim("sub", "test") }),
+                Expires = DateTime.UtcNow.AddMinutes(-30), // Expired token
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+                Issuer = "your-issuer",
+                Audience = "your-audience"
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var expiredToken = tokenHandler.WriteToken(token);
+
+            // Act
+            var result = _controller.ValidateToken(expiredToken);
+
+            // Assert
+            Assert.IsType<UnauthorizedResult>(result);
+        }
+
     }
 }
