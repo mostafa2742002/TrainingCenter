@@ -8,7 +8,7 @@
 <PageTitle>@title</PageTitle>
 <h3>@title</h3>
 
-@if (course is null)
+@if (course == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -27,22 +27,31 @@ else
                 <div class="mb-3">
                     <label for="startDate" class="form-label">Start Date:</label>
                     <InputDate id="startDate" @bind-Value="course.StartDate" class="form-control" />
+                    <ValidationMessage For="@(() => course.StartDate)" />
                 </div>
                 <div class="mb-3">
                     <label for="endDate" class="form-label">End Date:</label>
                     <InputDate id="endDate" @bind-Value="course.EndDate" class="form-control" />
+                    <ValidationMessage For="@(() => course.EndDate)" />
                 </div>
                 <div class="mb-3">
                     <label for="capacity" class="form-label">Capacity:</label>
                     <InputNumber id="capacity" @bind-Value="course.Capacity" class="form-control" />
+                    <ValidationMessage For="@(() => course.Capacity)" />
                 </div>
                 <div class="mb-3">
                     <label for="cost" class="form-label">Cost:</label>
                     <InputNumber id="cost" @bind-Value="course.Cost" class="form-control" />
+                    <ValidationMessage For="@(() => course.Cost)" />
                 </div>
                 <div class="mb-3">
                     <label for="status" class="form-label">Status:</label>
-                    <InputText id="status" @bind-Value="course.Status" class="form-control" />
+                    <select id="status" @bind="course.Status" class="form-control">
+                        <option value="Not Started">Not Started</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Finished">Finished</option>
+                    </select>
+                    <ValidationMessage For="@(() => course.Status)" />
                 </div>
 
                 <button type="submit" class="btn btn-primary">Save</button>
@@ -79,7 +88,7 @@ else
                     EndDate = DateTime.Today.AddDays(1),
                     Capacity = 1,
                     Cost = 0m,
-                    Status = "New"
+                    Status = "Not Started"
                 };
             title = "New Course";
         }

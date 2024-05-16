@@ -12,14 +12,30 @@ namespace TrainingCenterUI.Services
             _httpClient = httpClient;
         }
 
-        public async Task<List<StudentDTO>> GetStudentsAsync()
+        public async Task<List<StudentDTO?>?> GetStudentsAsync()
         {
-            return await _httpClient.GetFromJsonAsync<List<StudentDTO>>("api/students") ?? new List<StudentDTO>();
-        }
+            var response = await _httpClient.GetAsync("api/students");
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<List<StudentDTO?>>();
+            }
+            else
+            {
+                return new List<StudentDTO?>();
+            }
+        } 
 
-        public async Task<StudentDTO> GetStudentAsync(int id)
+        public async Task<StudentDTO?> GetStudentAsync(int id)
         {
-            return await _httpClient.GetFromJsonAsync<StudentDTO>($"api/students/{id}");
+            var response = await _httpClient.GetAsync($"api/students/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<StudentDTO>();
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public async Task AddStudentAsync(StudentDTO student)

@@ -8,7 +8,7 @@
 <PageTitle>@title</PageTitle>
 <h3>@title</h3>
 
-@if (student is null)
+@if (student == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -23,18 +23,22 @@ else
                 <div class="mb-3">
                     <label for="name" class="form-label">Name:</label>
                     <InputText id="name" @bind-Value="student.Name" class="form-control" />
+                    <ValidationMessage For="@(() => student.Name)" />
                 </div>
                 <div class="mb-3">
                     <label for="Email" class="form-label">Email:</label>
                     <InputText id="Email" @bind-Value="student.Email" class="form-control" />
+                    <ValidationMessage For="@(() => student.Email)" />
                 </div>
                 <div class="mb-3">
                     <label for="Governorate" class="form-label">Governorate:</label>
                     <InputText id="Governorate" @bind-Value="student.Governorate" class="form-control" />
+                    <ValidationMessage For="@(() => student.Governorate)" />
                 </div>
                 <div class="mb-3">
                     <label for="BirthDate" class="form-label">BirthDate:</label>
                     <InputDate id="BirthDate" @bind-Value="student.BirthDate" class="form-control" />
+                    <ValidationMessage For="@(() => student.BirthDate)" />
                 </div>
                 <button type="submit" class="btn btn-primary">Save</button>
                 <a class="btn btn-secondary" href="/students">Cancel</a>

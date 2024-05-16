@@ -15,6 +15,6 @@ namespace TrainingCenter.interfaces
         void AddCourseStudent(StudentCourse studentCourse);
         void UpdateCourseStudent(StudentCourse studentCourse);
         void DeleteCourseStudent(int courseId, int studentId);
-
+        List<Course> GetCoursesAvailableForStudent(int studentId);
     }
 }

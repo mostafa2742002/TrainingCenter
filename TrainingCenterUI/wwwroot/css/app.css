@@ -102,7 +102,7 @@ code {
     color: #c02d76;
 }
 
-/* Add this to your app.css */
+
 .login-form {
     max-width: 400px;
     margin: 50px auto;
@@ -118,3 +118,95 @@ code {
     .login-form button {
         width: 100%;
     }
+
+/*
+    home page
+*/
+/* Home.razor.css */
+
+.home-page {
+    text-align: center;
+    padding: 50px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 50px auto;
+}
+
+    .home-page h1 {
+        font-size: 2.5rem;
+        color: #333333;
+    }
+
+    .home-page p {
+        font-size: 1.25rem;
+        color: #666666;
+    }
+
+/*
+    courses page and students page
+*/
+
+.loading-courses {
+    text-align: center;
+    color: #007bff;
+    font-style: italic;
+    font-size: 1.5rem;
+    padding: 20px;
+}
+
+.no-courses {
+    text-align: center;
+    color: #ff0000;
+    font-weight: bold;
+    font-size: 1.5rem;
+    padding: 20px;
+}
+
+/*
+    enrollments page
+*/
+
+
+/* Enroll page styles */
+.enroll-page {
+    text-align: center;
+    padding: 50px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 50px auto;
+}
+
+    .enroll-page .loading-courses {
+        text-align: center;
+        color: #007bff;
+        font-style: italic;
+        font-size: 1.5rem;
+        padding: 20px;
+    }
+
+    .enroll-page .form-select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+    }
+
+    .enroll-page .enroll-button {
+        padding: 10px 20px;
+        font-size: 1.2rem;
+        border-radius: 5px;
+        background-color: #007bff;
+        color: #ffffff;
+        border: none;
+        cursor: pointer;
+    }
+
+        .enroll-page .enroll-button:hover {
+            background-color: #0056b3;
+        }

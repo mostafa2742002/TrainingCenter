@@ -81,5 +81,19 @@ namespace TrainingCenter.Repository
                 _context.SaveChanges();
             }
         }
+
+        public List<Course> GetCoursesAvailableForStudent(int studentId)
+        {
+            
+            var studentCourses = _context.StudentCourses.Where(sc => sc.StudentId == studentId).ToList();
+            var courses = _context.Courses.ToList();
+            var coursesAvailable = courses.Where(c => !studentCourses.Any(sc => sc.CourseId == c.Id) &&
+                                                                 c.StartDate > DateTime.Now &&
+                                                                 c.EndDate > DateTime.Now &&
+                                                                 c.Capacity > _context.StudentCourses.Count(sc => sc.CourseId == c.Id) &&
+                                                                 !studentCourses.Any(sc => sc.Course.StartDate == c.StartDate && sc.Course.EndDate == c.EndDate) &&
+                                                                 c.Status == "Not Started").ToList(); // Not Started, In Progress, Finished
+            return coursesAvailable;
+        }
     }
 }

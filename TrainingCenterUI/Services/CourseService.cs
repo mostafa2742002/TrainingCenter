@@ -13,32 +13,43 @@ namespace TrainingCenterUI.Services
             _httpClient = httpClient;
         }
 
-        public async Task<List<CourseDTO>> GetCoursesAsync()
+        public async Task<List<CourseDTO>?> GetCoursesAsync()
         {
             var response = await _httpClient.GetAsync("api/courses");
             if (response.IsSuccessStatusCode)
             {
-                try
-                {
-                    return await response.Content.ReadFromJsonAsync<List<CourseDTO>>();
-                }
-                catch (JsonException ex)
-                {
-                    var responseBody = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"Invalid JSON received: {responseBody}");
-                    throw new InvalidOperationException("Received invalid JSON", ex);
-                }
+                    return await response.Content.ReadFromJsonAsync<List<CourseDTO>>();   
             }
             else
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                throw new HttpRequestException($"Error fetching courses: {response.StatusCode} - {errorContent}");
+                return new List<CourseDTO>();
             }
         }
 
-        public async Task<CourseDTO> GetCourseAsync(int id)
+        public async Task<List<CourseDTO?>?> GetCoursesAvailableForStudentAsync(int studentId)
         {
-            return await _httpClient.GetFromJsonAsync<CourseDTO>($"api/courses/{id}");
+            var response = await _httpClient.GetAsync($"api/courses/available/{studentId}");
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<List<CourseDTO>>();
+            }
+            else
+            {
+                return new List<CourseDTO>();
+            }
+        }
+
+        public async Task<CourseDTO?> GetCourseAsync(int id)
+        {
+            var response = await _httpClient.GetAsync($"api/courses/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<CourseDTO>();
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public async Task AddCourseAsync(CourseDTO course)

@@ -52,7 +52,7 @@ namespace TrainingCenter.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Courses");
+                    b.ToTable("Courses", (string)null);
                 });
 
             modelBuilder.Entity("TrainingCenter.Models.Student", b =>
@@ -80,7 +80,7 @@ namespace TrainingCenter.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Students");
+                    b.ToTable("Students", (string)null);
                 });
 
             modelBuilder.Entity("TrainingCenter.Models.StudentCourse", b =>
@@ -94,9 +94,6 @@ namespace TrainingCenter.Migrations
                     b.Property<decimal>("Grade")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("RegistrationDate")
                         .HasColumnType("datetime2");
 
@@ -108,7 +105,7 @@ namespace TrainingCenter.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("StudentCourse");
+                    b.ToTable("StudentCourses", (string)null);
                 });
 
             modelBuilder.Entity("TrainingCenter.Models.StudentCourse", b =>

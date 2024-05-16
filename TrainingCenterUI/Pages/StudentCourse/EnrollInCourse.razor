@@ -7,21 +7,23 @@
 
 <PageTitle>Enroll in Course</PageTitle>
 
-@if (availableCourses == null)
-{
-    <p><em>Loading courses...</em></p>
-}
-else
-{
-    <select @bind="selectedCourseId">
-        <option value="">Select a course</option>
-        @foreach (var course in availableCourses)
-        {
-            <option value="@course.Id">@course.Name</option>
-        }
-    </select>
-    <button class="btn btn-primary" @onclick="Enroll">Enroll</button>
-}
+<div class="enroll-page">
+    @if (availableCourses == null)
+    {
+        <p class="loading-courses"><em>Loading courses...</em></p>
+    }
+    else
+    {
+        <select class="form-select" @bind="selectedCourseId">
+            <option value="">Select a course</option>
+            @foreach (var course in availableCourses)
+            {
+                <option value="@course.Id">@course.Name</option>
+            }
+        </select>
+        <button class="btn btn-primary enroll-button" @onclick="Enroll">Enroll</button>
+    }
+</div>
 
 @code {
     [Parameter]
@@ -32,7 +34,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        availableCourses = await CourseService.GetCoursesAsync();
+        availableCourses = await CourseService.GetCoursesAvailableForStudentAsync(StudentId);
     }
 
     private async Task Enroll()

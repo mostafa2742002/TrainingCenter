@@ -9,8 +9,15 @@
 <div class="mt-2">
     <a class="btn btn-primary" role="button" href="/editstudent">New Student</a>
 </div>
-
-@if (students != null)
+@if (students == null)
+{
+    <p><em>Loading students...</em></p>
+}
+else if (students.Count == 0)
+{
+    <p><em>No Courses Found.</em></p>
+}
+else
 {
     <table class="table table-striped table-bordered table-hover mt-3">
         <thead class="table-dark">

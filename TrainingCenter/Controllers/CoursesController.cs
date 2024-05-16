@@ -92,5 +92,17 @@ namespace TrainingCenter.Controllers
             _coursesRepository.DeleteCourse(id);
             return NoContent();
         }
+
+        [HttpGet("available/{studentId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult GetCoursesAvailableForStudent(int studentId)
+        {
+            var courses = _coursesRepository.GetCoursesAvailableForStudent(studentId);
+            if (courses == null || !courses.Any())
+                return NotFound("No courses found.");
+            var coursesDto = _mapper.Map<List<CourseDTO>>(courses);
+            return Ok(coursesDto);
+        }
     }
 }
