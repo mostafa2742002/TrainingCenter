@@ -4,6 +4,7 @@ using TrainingCenter.Models;
 using TrainingCenter.DTO;
 using AutoMapper;
 using TrainingCenter.interfaces;
+using System.Collections.Specialized;
 
 namespace TrainingCenter.Repository
 {
@@ -84,16 +85,48 @@ namespace TrainingCenter.Repository
 
         public List<Course> GetCoursesAvailableForStudent(int studentId)
         {
-            
-            var studentCourses = _context.StudentCourses.Where(sc => sc.StudentId == studentId).ToList();
-            var courses = _context.Courses.ToList();
-            var coursesAvailable = courses.Where(c => !studentCourses.Any(sc => sc.CourseId == c.Id) &&
-                                                                 c.StartDate > DateTime.Now &&
-                                                                 c.EndDate > DateTime.Now &&
-                                                                 c.Capacity > _context.StudentCourses.Count(sc => sc.CourseId == c.Id) &&
-                                                                 !studentCourses.Any(sc => sc.Course.StartDate == c.StartDate && sc.Course.EndDate == c.EndDate) &&
-                                                                 c.Status == "Not Started").ToList(); // Not Started, In Progress, Finished
-            return coursesAvailable;
+            var studentCourses = _context.StudentCourses
+                .Include(sc => sc.Course)
+                .Where(sc => sc.StudentId == studentId)
+                .ToList();
+
+            var availableCourses = _context.Courses
+                .Include(c => c.StudentCourses)
+                .Where(c =>
+                    c.StartDate > DateTime.Now &&
+                    c.EndDate > DateTime.Now &&
+                    c.Capacity > c.StudentCourses.Count &&
+                    c.Status == "Not Started"
+                ).ToList();
+
+            for(int i = 0; i < availableCourses.Count; i++)
+            {
+                // convert the date to x/y/z format
+                DateTime start = availableCourses[i].StartDate.Date;                
+                DateTime end = availableCourses[i].EndDate.Date;
+                string startString = start.ToString("yyyy/MM/dd");
+                string endString = end.ToString("yyyy/MM/dd");
+                availableCourses[i].StartDate = DateTime.Parse(startString);
+                availableCourses[i].EndDate = DateTime.Parse(endString);
+
+                for (int j = 0; j < studentCourses.Count; j++)
+                {
+                    DateTime dateTime = studentCourses[j].Course.StartDate.Date;
+                    string dateTimeString = dateTime.ToString("yyyy/MM/dd");
+                    studentCourses[j].Course.StartDate = DateTime.Parse(dateTimeString);
+                    dateTime = studentCourses[j].Course.EndDate.Date;
+                    dateTimeString = dateTime.ToString("yyyy/MM/dd");
+                    studentCourses[j].Course.EndDate = DateTime.Parse(dateTimeString);
+                    if (availableCourses[i].StartDate < studentCourses[j].Course.EndDate && availableCourses[i].EndDate > studentCourses[j].Course.StartDate)
+                    {
+                        availableCourses.RemoveAt(i);
+                        i--;
+                        break;
+                    }
+                }
+            }
+            return availableCourses;
         }
+
     }
 }

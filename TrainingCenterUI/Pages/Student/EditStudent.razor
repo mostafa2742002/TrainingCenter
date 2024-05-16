@@ -16,6 +16,10 @@ else
 {
     <div class="row">
         <div class="col-md-6">
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger">@errorMessage</div>
+            }
             <EditForm Model="@student" OnValidSubmit="HandleSubmitAsync">
                 <DataAnnotationsValidator />
                 <ValidationSummary />
@@ -53,6 +57,7 @@ else
 
     private StudentDTO? student;
     private string title = "Edit Student";
+    private string errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
@@ -82,11 +87,21 @@ else
     {
         if (Id.HasValue)
         {
-            await StudentService.UpdateStudentAsync(Id.Value, student);
+            string response = await StudentService.UpdateStudentAsync(Id.Value, student);
+            if (response != "Student updated successfully.")
+            {
+                errorMessage = response;
+                return;
+            }
         }
         else
         {
-            await StudentService.AddStudentAsync(student);
+            string response = await StudentService.AddStudentAsync(student);
+            if (response != "Student added successfully.")
+            {
+                errorMessage = response;
+                return;
+            }
         }
 
         NavigationManager.NavigateTo("/students");

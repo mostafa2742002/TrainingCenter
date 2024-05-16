@@ -54,6 +54,11 @@ namespace TrainingCenter.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+            
+            // check if the email already exists
+            if (_studentRepository.GetStudents().Any(s => s.Email == studentDto.Email))
+                return BadRequest("Email already exists.");
+
 
             var student = _mapper.Map<Student>(studentDto);
 

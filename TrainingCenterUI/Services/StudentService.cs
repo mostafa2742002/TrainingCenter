@@ -38,14 +38,30 @@ namespace TrainingCenterUI.Services
             }
         }
 
-        public async Task AddStudentAsync(StudentDTO student)
+        public async Task<string> AddStudentAsync(StudentDTO student)
         {
-            await _httpClient.PostAsJsonAsync("api/students", student);
+            var response = await _httpClient.PostAsJsonAsync("api/students", student);
+            if (response.IsSuccessStatusCode)
+            {
+                return "Student added successfully.";
+            }
+            else
+            {
+                return await response.Content.ReadAsStringAsync();
+            }
         }
 
-        public async Task UpdateStudentAsync(int id, StudentDTO student)
+        public async Task<string> UpdateStudentAsync(int id, StudentDTO student)
         {
-            await _httpClient.PutAsJsonAsync($"api/students/{id}", student);
+            var response = await _httpClient.PutAsJsonAsync($"api/students/{id}", student);
+            if (response.IsSuccessStatusCode)
+            {
+                return "Student updated successfully.";
+            }
+            else
+            {
+                return await response.Content.ReadAsStringAsync();
+            }
         }
 
         public async Task DeleteStudentAsync(int id)
